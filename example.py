@@ -25,6 +25,5 @@ for file in os.listdir():
             got = torVideoFormat(file, "None", "true", output_dir="pngs")
             if got['code'] == -1:
                 print(f"{file}:-:{got['path']}")
-                exit()
             else:
                 print(f"couldnt make png for {file}")
