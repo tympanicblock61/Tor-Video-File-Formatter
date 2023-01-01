@@ -115,22 +115,22 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
     else:
         cv2.imwrite(f"{filename}.png", result_image)
         return {"code": -1, "path": f"{filename}.png"}
-
-
-print("welcome to the Tor Video File Formatter or TVFF")
-while True:
-    videoFile = input("video file: ")
-    website = input("website url: ")
-    nameType = input("random name (true/false): ")
-    outputDir = input("output directory (leave empty for none): ")
-    if outputDir == '':
-        outputDir = None
-    got = torVideoFormat(videoFile, website, nameType, outputDir)
-    if got['code'] == 0:
-        print(f"length of \n`{got['path']}`\nis a negative number")
-    elif got['code'] == 1:
-        print(f"length of \n`{got['path']}`\nis over the legth limit")
-    elif got['code'] == 2:
-        print(f"length of \n`{got['path']}`\n is either infinite or 0")
-    elif got['code'] == -1:
-        print(f"finished path to file is: \n{got['path']}")
+    
+if __name__ == "__main__"
+    print("welcome to the Tor Video File Formatter or TVFF")
+    while True:
+        videoFile = input("video file: ")
+        website = input("website url: ")
+        nameType = input("random name (true/false): ")
+        outputDir = input("output directory (leave empty for none): ")
+        if outputDir == '':
+            outputDir = None
+        got = torVideoFormat(videoFile, website, nameType, outputDir)
+        if got['code'] == 0:
+            print(f"length of \n`{got['path']}`\nis a negative number")
+        elif got['code'] == 1:
+            print(f"length of \n`{got['path']}`\nis over the legth limit")
+        elif got['code'] == 2:
+            print(f"length of \n`{got['path']}`\n is either infinite or 0")
+        elif got['code'] == -1:
+            print(f"finished path to file is: \n{got['path']}")
