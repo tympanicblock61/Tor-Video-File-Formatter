@@ -1,12 +1,39 @@
 import random
 import string
+import warnings
 import cv2
 import os
 import datetime
 import numpy as np
 
+warnings.filterwarnings("ignore")
 
-def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: str=None):
+def draw_text_with_background(image, text, x, y, font=cv2.FONT_HERSHEY_COMPLEX, font_scale=0.7, color=(255, 255, 255), thickness=1, line_type=cv2.LINE_AA):
+    text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+    text_width, text_height = text_size[0], text_size[1]
+
+    x1 = x
+    y1 = y - text_height
+    x2 = x1 + text_width
+    y2 = y1 + text_height
+
+    cv2.rectangle(image, (x1-7, y1-7), (x2+7, y2+7), (0, 0, 0), -1)
+    cv2.putText(image, text, (x1, y2), font, font_scale, color, thickness, line_type)
+
+
+def adjust_image_size(image, text, x, y):
+    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_COMPLEX, 0.7, 1)[0]
+
+    required_width = max(image.shape[1], text_size[0])
+    required_height = image.shape[0]
+    adjusted_image = np.zeros((required_height, required_width, 3), dtype=image.dtype)
+    adjusted_image[:image.shape[0], :image.shape[1]] = image
+    cv2.putText(adjusted_image, text, (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255),thickness=1, lineType=cv2.LINE_AA)
+
+    return adjusted_image
+
+
+def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: str = None):
     file_metadata = os.stat(video_file)
     creation_time = datetime.datetime.fromtimestamp(file_metadata.st_ctime)
     modified_time = datetime.datetime.fromtimestamp(file_metadata.st_mtime)
@@ -38,9 +65,10 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
         elapsed_hours, remainder = divmod(elapsed_time.seconds, 3600)
         elapsed_minutes, elapsed_seconds = divmod(remainder, 60)
         elapsed_time_str = f"{elapsed_hours:02d}:{elapsed_minutes:02d}:{elapsed_seconds:02d}"
+        success, frame = video.read()
+        frame = cv2.resize(frame, (512, 512))
 
-        cv2.putText(frame, elapsed_time_str, (frame.shape[1] - 320, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4,
-                    (255, 255, 255), thickness=1, lineType=cv2.LINE_AA)
+        draw_text_with_background(frame, elapsed_time_str, x=7, y=505)
 
         if frame_image is None:
             frame_image = frame
@@ -60,22 +88,23 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
     video_size = file_metadata.st_size
     video_length = (total_frames / frame_rate) * 1000
     image = np.zeros((200, rows_image.shape[1], rows_image.shape[2]), dtype=rows_image.dtype)
-    cv2.putText(image, f"Video name: {video_file}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
-                thickness=1, lineType=cv2.LINE_AA)
-    cv2.putText(image, f"Video size: {video_size} bytes", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
-                thickness=1, lineType=cv2.LINE_AA)
-    cv2.putText(image, f"Video length: {video_length:.2f} milliseconds", (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
-                thickness=1, lineType=cv2.LINE_AA)
+    image = adjust_image_size(image, f"Video name: {video_file}", 10, 20)
+    cv2.imwrite(f"pngs\\1.png", image)
+    image = adjust_image_size(image, f"Video size: {video_size} bytes", 10, 50)
+    cv2.imwrite(f"pngs\\2.png", image)
+    image = adjust_image_size(image, f"Video length: {video_length:.2f} milliseconds", 10, 80)
+    cv2.imwrite(f"pngs\\3.png", image)
     if creation_time == datetime.datetime.now():
         time_to_use = modified_time
     else:
         time_to_use = creation_time
     creation_time_str = time_to_use.strftime("%Y-%m-%d %H:%M:%S")
-    cv2.putText(image, f"Video Creation time: {creation_time_str}", (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
-                thickness=1, lineType=cv2.LINE_AA)
-    cv2.putText(image, f"Website from: {website}", (10, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), thickness=1,
-                lineType=cv2.LINE_AA)
-    cv2.putText(image, f"Formatted on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", (10, 170), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), thickness=1, lineType=cv2.LINE_AA)
+    image = adjust_image_size(image, f"Video Creation time: {creation_time_str}", 10, 110)
+    cv2.imwrite(f"pngs\\4.png", image)
+    image = adjust_image_size(image, f"Website from: {website}", 10, 140)
+    cv2.imwrite(f"pngs\\5.png", image)
+    image = adjust_image_size(image, f"Formatted on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 10, 170)
+    cv2.imwrite(f"pngs\\6.png", image)
     result_image = cv2.vconcat([image, rows_image])
 
     if name_type.lower() == "false":
@@ -83,9 +112,8 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
     else:
         filename = "".join(random.sample(string.ascii_letters + string.digits, random.randint(5, 15)))
     if output_dir is not None:
-        print(f"out: {output_dir}")
-        cv2.imwrite(f"{output_dir}//{filename}.png", result_image)
-        return {"code": -1, "path": f"{output_dir}//{filename}.png"}
+        cv2.imwrite(f"{output_dir}\\{filename}.png", result_image)
+        return {"code": -1, "path": f"{output_dir}\\{filename}.png"}
     else:
         cv2.imwrite(f"{filename}.png", result_image)
         return {"code": -1, "path": f"{filename}.png"}
