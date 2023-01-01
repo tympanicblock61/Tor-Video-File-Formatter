@@ -21,6 +21,8 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
         return {'code': 0, "path": video_file}
     elif frame_interval > 2147483647:
         return {'code': 1, "path": video_file}
+    elif frame_interval == 0:
+        return {'code': 2, "path": video_file}
     frame_image = None
     rows_image = None
     for i in range(1, 7):
@@ -101,5 +103,7 @@ while True:
         print(f"length of \n`{got['path']}`\nis a negative number")
     elif got['code'] == 1:
         print(f"length of \n`{got['path']}`\nis over the legth limit")
+    elif got['code'] == 2:
+        print(f"length of \n`{got['path']}`\n is either infinite or 0")
     elif got['code'] == -1:
         print(f"finished path to file is: \n{got['path']}")
