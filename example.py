@@ -18,9 +18,8 @@ def isVidFile(file):
     except:
         return False
 
-
-v = os.listdir()
-for file in v:
+    
+for file in os.listdir():
     if os.path.isfile(file):
         if isVidFile(file):
             got = torVideoFormat(file, "None", "true", output_dir="pngs")
