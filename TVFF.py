@@ -6,7 +6,7 @@ import datetime
 import numpy as np
 
 
-def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: str):
+def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: str=None):
     file_metadata = os.stat(video_file)
     creation_time = datetime.datetime.fromtimestamp(file_metadata.st_ctime)
     modified_time = datetime.datetime.fromtimestamp(file_metadata.st_mtime)
@@ -62,7 +62,7 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
                 thickness=1, lineType=cv2.LINE_AA)
     cv2.putText(image, f"Video size: {video_size} bytes", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
                 thickness=1, lineType=cv2.LINE_AA)
-    cv2.putText(image, f"Video length: {video_length:.2f} Ms", (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
+    cv2.putText(image, f"Video length: {video_length:.2f} milliseconds", (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
                 thickness=1, lineType=cv2.LINE_AA)
     if creation_time == datetime.datetime.now():
         time_to_use = modified_time
