@@ -116,7 +116,7 @@ def torVideoFormat(video_file: str, website: str, name_type: str, output_dir: st
         cv2.imwrite(f"{filename}.png", result_image)
         return {"code": -1, "path": f"{filename}.png"}
     
-if __name__ == "__main__"
+if __name__ == "__main__":
     print("welcome to the Tor Video File Formatter or TVFF")
     while True:
         videoFile = input("video file: ")
